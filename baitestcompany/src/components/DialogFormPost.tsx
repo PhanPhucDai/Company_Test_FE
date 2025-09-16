@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Dialog,
@@ -7,8 +7,8 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-import { useAlert } from "../utils/Alert";
- 
+import { useAlert } from "../untils/notice";
+    
 interface DialogFormPostProps {
   open: boolean;
   onClose: () => void;
@@ -49,7 +49,7 @@ const DialogFormPost = ({ open, onClose, onSave, editingPost }: DialogFormPostPr
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" disableEnforceFocus>
       <DialogTitle>{editingPost ? "Chỉnh sửa bài viết" : "Tạo bài viết mới"}</DialogTitle>
       <DialogContent dividers>
         <TextField

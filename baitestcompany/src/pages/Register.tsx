@@ -8,112 +8,135 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import { register } from "../services/UserService";
-
+import { register } from "../services/userservice";
+ 
 const DangKi: React.FC = () => {
-  // State cho form
-  const [tenDangNhap, setTenDangNhap] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [hoTen, setHoTen] = useState<string>("");
-  const [matKhau, setMatKhau] = useState<string>("");
-  const [matKhauLapLai, setMatKhauLapLai] = useState<string>("");
-  const [thongBao, setThongBao] = useState<string>("");
+  const [form, setForm] = useState({
+    hoTen: "",
+    tenDangNhap: "",
+    email: "",
+    matKhau: "",
+    matKhauLapLai: "",
+  });
 
-  // State lỗi
-  const [errorTenDangNhap, setErrorTenDangNhap] = useState<string>("");
-  const [errorEmail, setErrorEmail] = useState<string>("");
-  const [errorMatKhau, setErrorMatKhau] = useState<string>("");
-  const [errorMatKhauLapLai, setErrorMatKhauLapLai] = useState<string>("");
+  const [errors, setErrors] = useState({
+    hoTen: "",
+    tenDangNhap: "",
+    email: "",
+    matKhau: "",
+    matKhauLapLai: "",
+  });
 
-  // ======================= API CHECK Email, Username =======================
-  const kiemTraTenDangNhapDaTonTai = async (tenDangNhap: string) => {
-    const url = `http://localhost:8080/auth/exists/username/${tenDangNhap}`;
-    try {
-      const respone = await fetch(url);
-      const data = await respone.text(); // backend trả true/false
-      if (data === "true") {
-        setErrorTenDangNhap("Tên đăng nhập đã tồn tại");
-        return true;
+  const [thongBao, setThongBao] = useState({ msg: "", type: "" }); // type: "success" | "error"
+
+  // ======================= VALIDATION =======================
+  const validateForm = async () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    // Họ tên
+    if (!form.hoTen.trim()) {
+      newErrors.hoTen = "Họ tên không được để trống";
+      valid = false;
+    } else newErrors.hoTen = "";
+
+    // Tên đăng nhập
+    if (!form.tenDangNhap.trim()) {
+      newErrors.tenDangNhap = "Tên đăng nhập không được để trống";
+      valid = false;
+    } else {
+      // Check backend tồn tại
+      try {
+        const resp = await fetch(
+          `https://companytest.onrender.com/auth/exists/username/${form.tenDangNhap}`
+        );
+        const exists = await resp.text();
+        if (exists === "true") {
+          newErrors.tenDangNhap = "Tên đăng nhập đã tồn tại";
+          valid = false;
+        } else newErrors.tenDangNhap = "";
+      } catch {
+        newErrors.tenDangNhap = "Lỗi kiểm tra username";
+        valid = false;
       }
-      return false;
-    } catch {
-      return false;
     }
-  };
 
-  const kiemTraEmailDaTonTai = async (email: string) => {
-    const url = `http://localhost:8080/auth/exists/email/${email}`;
-    try {
-      const respone = await fetch(url);
-      const data = await respone.text();
-      if (data === "true") {
-        setErrorEmail("Email đã tồn tại");
-        return true;
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form.email.trim()) {
+      newErrors.email = "Email không được để trống";
+      valid = false;
+    } else if (!emailRegex.test(form.email)) {
+      newErrors.email = "Email không hợp lệ";
+      valid = false;
+    } else {
+      try {
+        const resp = await fetch(
+          `https://companytest.onrender.com/exists/email/${form.email}`
+        );
+        const exists = await resp.text();
+        if (exists === "true") {
+          newErrors.email = "Email đã tồn tại";
+          valid = false;
+        } else newErrors.email = "";
+      } catch {
+        newErrors.email = "Lỗi kiểm tra email";
+        valid = false;
       }
-      return false;
-    } catch {
-      return false;
     }
-  };
 
-  const kiemTraMatKhau = (matKhau: string) => {
+    // Mật khẩu
     const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-    if (!passwordRegex.test(matKhau)) {
-      setErrorMatKhau("Mật khẩu >= 8 ký tự và có ít nhất 1 ký tự đặc biệt");
-      return false;
-    }
-    return true;
-  };
+    if (!form.matKhau.trim()) {
+      newErrors.matKhau = "Mật khẩu không được để trống";
+      valid = false;
+    } else if (!passwordRegex.test(form.matKhau)) {
+      newErrors.matKhau =
+        "Mật khẩu >= 8 ký tự và ít nhất 1 ký tự đặc biệt";
+      valid = false;
+    } else newErrors.matKhau = "";
 
-  const kiemTraMatKhauLapLai = (matKhauLapLai: string) => {
-    if (matKhauLapLai !== matKhau) {
-      setErrorMatKhauLapLai("Mật khẩu nhập lại không khớp");
-      return false;
-    }
-    return true;
+    // Mật khẩu nhập lại
+    if (form.matKhauLapLai !== form.matKhau) {
+      newErrors.matKhauLapLai = "Mật khẩu nhập lại không khớp";
+      valid = false;
+    } else newErrors.matKhauLapLai = "";
+
+    setErrors(newErrors);
+    return valid;
   };
 
   // ======================= HANDLE =======================
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setErrorTenDangNhap("");
-    setErrorEmail("");
-    setErrorMatKhau("");
-    setErrorMatKhauLapLai("");
-    setThongBao("");
+    setThongBao({ msg: "", type: "" });
 
-    const isTenDangNhapValid = !(await kiemTraTenDangNhapDaTonTai(tenDangNhap));
-    const isEmailValid = !(await kiemTraEmailDaTonTai(email));
-    const isMatKhauValid = kiemTraMatKhau(matKhau);
-    const isMatKhauLapLaiValid = kiemTraMatKhauLapLai(matKhauLapLai);
-
-    if (isTenDangNhapValid && isEmailValid && isMatKhauValid && isMatKhauLapLaiValid) {
+    if (await validateForm()) {
       try {
-        const result = await register({
-          username: tenDangNhap,
-          email: email,
-          password: matKhau,
-          fullName: hoTen,
+        await register({
+          username: form.tenDangNhap,
+          email: form.email,
+          password: form.matKhau,
+          fullName: form.hoTen,
         });
-
-        setThongBao("Tài khoản đăng ký thành công");
-        console.log("Register result:", result);
-        window.location.href = "/login";
-
-        // reset form
-        setTenDangNhap("");
-        setEmail("");
-        setMatKhau("");
-        setMatKhauLapLai("");
-        setHoTen("");
+        setThongBao({ msg: "Đăng ký thành công!", type: "success" });
+        // Reset form
+        setForm({
+          hoTen: "",
+          tenDangNhap: "",
+          email: "",
+          matKhau: "",
+          matKhauLapLai: "",
+        });
+        setTimeout(() => (window.location.href = "/login"), 1500);
       } catch (error: any) {
-        console.error("Register error:", error);
-        setThongBao(error?.message || "Đăng ký thất bại, vui lòng thử lại");
+        setThongBao({
+          msg: error?.message || "Đăng ký thất bại, vui lòng thử lại",
+          type: "error",
+        });
       }
     }
   };
-
-
 
   // ======================= UI =======================
   return (
@@ -124,79 +147,102 @@ const DangKi: React.FC = () => {
         </Typography>
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {/* Cột trái */}
-            <Grid sx={{ xs: '12', md: '6' }}>
+            <Grid sx={{ xs: "12", md: "6" }}>
               <TextField
                 label="Họ Tên"
                 fullWidth
-                value={hoTen}
-                onChange={(e) => setHoTen(e.target.value)}
                 margin="normal"
+                value={form.hoTen}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, hoTen: e.target.value }))
+                }
+                error={!!errors.hoTen}
+                helperText={errors.hoTen}
               />
               <TextField
                 label="Tên đăng nhập"
                 fullWidth
-                value={tenDangNhap}
-                onChange={(e) => setTenDangNhap(e.target.value)}
-                error={!!errorTenDangNhap}
-                helperText={errorTenDangNhap}
                 margin="normal"
+                value={form.tenDangNhap}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, tenDangNhap: e.target.value }))
+                }
+                error={!!errors.tenDangNhap}
+                helperText={errors.tenDangNhap}
               />
-
               <TextField
                 label="Email"
                 type="email"
                 fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={!!errorEmail}
-                helperText={errorEmail}
                 margin="normal"
+                value={form.email}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, email: e.target.value }))
+                }
+                error={!!errors.email}
+                helperText={errors.email}
               />
               <TextField
                 label="Mật khẩu"
                 type="password"
                 fullWidth
-                value={matKhau}
-                onChange={(e) => setMatKhau(e.target.value)}
-                error={!!errorMatKhau}
-                helperText={errorMatKhau}
                 margin="normal"
+                value={form.matKhau}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, matKhau: e.target.value }))
+                }
+                error={!!errors.matKhau}
+                helperText={errors.matKhau}
               />
               <TextField
                 label="Nhập lại mật khẩu"
                 type="password"
                 fullWidth
-                value={matKhauLapLai}
-                onChange={(e) => setMatKhauLapLai(e.target.value)}
-                error={!!errorMatKhauLapLai}
-                helperText={errorMatKhauLapLai}
                 margin="normal"
+                value={form.matKhauLapLai}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    matKhauLapLai: e.target.value,
+                  }))
+                }
+                error={!!errors.matKhauLapLai}
+                helperText={errors.matKhauLapLai}
               />
             </Grid>
-
           </Grid>
 
-          {/* Submit */}
           <Box textAlign="center" mt={4}>
             <Button type="submit" variant="contained" size="large">
               Đăng ký
             </Button>
           </Box>
-
-          {/* Thông báo */}
-          {thongBao && (
+          <Typography variant="body2" mt={2}>
+            Bạn đã có tài khoản ? {" "}
+            <a
+              href="/login"
+              style={{
+                textDecoration: "none",
+                color: "#1976d2",
+                fontWeight: 500,
+              }}
+            >
+              Đăng nhập
+            </a>
+          </Typography>
+          {thongBao.msg && (
             <Typography
               variant="body1"
-              color={thongBao.includes("thành công") ? "green" : "error"}
+              color={thongBao.type === "success" ? "green" : "error"}
               align="center"
               mt={3}
             >
-              {thongBao}
+              {thongBao.msg}
             </Typography>
           )}
         </Box>
       </Paper>
+
     </Container>
   );
 };

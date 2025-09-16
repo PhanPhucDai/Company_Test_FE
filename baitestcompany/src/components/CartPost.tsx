@@ -2,11 +2,13 @@ import React from "react";
 import { Dialog, DialogTitle, DialogContent, Typography, DialogActions, Button } from "@mui/material";
 
 interface Post {
-    id: number;
-    title: string;
-    content: string;
-    author: string;
-    createdAt: string;
+  id: number;
+  title: string;
+  content: string;
+  author: {
+    fullName: string;
+  };
+  createdAt: string;
 }
 
 interface CartPostProps {
@@ -26,7 +28,7 @@ const CartPost: React.FC<CartPostProps> = ({ open, post, onClose }) => {
                     {post.content}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                    Đăng bởi <b>{post.author}</b> • {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Chưa có ngày"}
+                    Đăng bởi <b>{post.author.fullName}</b> • {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Chưa có ngày"}
                 </Typography>
             </DialogContent>
             <DialogActions>

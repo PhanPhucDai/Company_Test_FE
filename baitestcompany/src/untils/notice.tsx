@@ -1,6 +1,5 @@
-// src/context/AlertContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Snackbar, Alert as MuiAlert, AlertColor } from "@mui/material";
+import { Alert, Snackbar } from "@mui/material"; 
 
 type AlertType = "success" | "error" | "warning" | "info";
 
@@ -38,9 +37,9 @@ export const AlertProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         onClose={handleClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <MuiAlert onClose={handleClose} severity={alertType} sx={{ width: "100%" }}>
+        <Alert onClose={handleClose} severity={alertType} sx={{ width: "100%" }}>
           {alertMsg}
-        </MuiAlert>
+        </Alert>
       </Snackbar>
     </AlertContext.Provider>
   );

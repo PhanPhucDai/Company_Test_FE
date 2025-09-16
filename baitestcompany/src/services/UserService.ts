@@ -1,8 +1,8 @@
-const API_URL = "http://localhost:8080/auth"; // đổi thành URL backend của bạn
+const API_URL = "https://companytest.onrender.com/auth/"; // đổi thành URL backend của bạn
 
 // Login
 export const login = async (username: string, password: string) => {
-  const res = await fetch(`${API_URL}/login`, {
+  const res = await fetch(`${API_URL}login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -25,7 +25,7 @@ export const register = async (user: {
   password: string;
   fullName?: string;
 }) => {
-  const res = await fetch(`${API_URL}/register`, {
+  const res = await fetch(`${API_URL}register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

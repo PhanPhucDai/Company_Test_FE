@@ -1,0 +1,18 @@
+FROM node:18-alpine as build
+
+WORKDIR /app
+
+COPY Company_Test_FE/baitestcompany/package*.json ./
+RUN npm install
+COPY Company_Test_FE/baitestcompany/public ./public
+COPY Company_Test_FE/baitestcompany/src ./src
+RUN npm run build
+
+
+FROM nginx:alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

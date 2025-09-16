@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api/posts"; // backend URL
+const API_URL = "https://companytest.onrender.com/api/posts"; // backend URL
 
 // Create Post
 export const createPost = async (post: {

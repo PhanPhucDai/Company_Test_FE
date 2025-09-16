@@ -7,12 +7,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { login } from "../services/UserService"; // import hàm login FE service
+import { login } from "../services/userservice"; 
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -76,7 +75,6 @@ const Login: React.FC = () => {
             <TextField
               fullWidth
               label="Mật khẩu"
-              type={showPassword ? "text" : "password"}
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
