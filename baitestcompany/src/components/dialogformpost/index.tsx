@@ -7,8 +7,8 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-import { useAlert } from "../untils/notice";
-    
+import { useAlert } from "../../untils/notice";
+     
 interface DialogFormPostProps {
   open: boolean;
   onClose: () => void;
