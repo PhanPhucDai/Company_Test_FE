@@ -36,6 +36,7 @@ const PostManagement: React.FC = () => {
             setLoading(false);
         }
     };
+
     const fetchPosts = async () => {
         setLoading(true);
         setError("");
@@ -48,12 +49,14 @@ const PostManagement: React.FC = () => {
             setLoading(false);
         }
     };
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token || null) {
             window.location.href = "/login";
             return;
         }
+        setPosts([]);
         if (tab === "my") {
             fetchMyPosts();
         } else {
