@@ -51,12 +51,13 @@ const PostManagement: React.FC = () => {
     };
 
     useEffect(() => {
+         setPosts([]);
         const token = localStorage.getItem("token");
         if (!token || null) {
             window.location.href = "/login";
             return;
         }
-        setPosts([]);
+       
         if (tab === "my") {
             fetchMyPosts();
         } else {
@@ -314,7 +315,7 @@ const PostManagement: React.FC = () => {
                                                 if (!postToDelete) return;
                                                 try {
                                                     await deletePost(postToDelete.id);
-                                                    fetchPosts()
+                                                    getMyPosts(username.username);
                                                     showAlert("Xóa bài viết thành công!", "success");
                                                 } catch (err) {
                                                     console.error(err);
