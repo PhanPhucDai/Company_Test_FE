@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Container, Grid, List, ListItem, ListItemButton, ListItemText, Box, Typography, CircularProgress, TextField, Button, Card, CardContent, CardActions, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
- import { jwtDecode } from "jwt-decode";
- import { useAlert } from "../../untils/notice";
+import { jwtDecode } from "jwt-decode";
+import { useAlert } from "../../untils/notice";
 import { createPost, deletePost, getAllPosts, getMyPosts, searchPosts, updatePost } from "../../services/postservice";
 import CartPost from "../../components/cartpost";
 import DialogFormPost from "../../components/dialogformpost";
-    
+
 interface Post {
     id: number;
     title: string;
@@ -51,13 +51,13 @@ const PostManagement: React.FC = () => {
     };
 
     useEffect(() => {
-         setPosts([]);
+        setPosts([]);
         const token = localStorage.getItem("token");
         if (!token || null) {
             window.location.href = "/login";
             return;
         }
-       
+
         if (tab === "my") {
             fetchMyPosts();
         } else {
@@ -315,7 +315,8 @@ const PostManagement: React.FC = () => {
                                                 if (!postToDelete) return;
                                                 try {
                                                     await deletePost(postToDelete.id);
-                                                    getMyPosts(username.username);
+                                                    const data = await getMyPosts(username.username);
+                                                    setPosts(data.data);
                                                     showAlert("Xóa bài viết thành công!", "success");
                                                 } catch (err) {
                                                     console.error(err);
